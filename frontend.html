@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEAMS - Smart Event Attendee Management | DSA Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --glass: rgba(255,255,255,0.1);
+            --shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            background: #f8fafc;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+        }
+
+        /* Table Section */
+        .table-section h2 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 400px;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            background: white;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+        }
+
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .status-present { background: #dcfce7; color: #166534; }
+        .status-absent { background: #fef3c7; color: #92400e; }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-edit { background: #3b82f6; color: white; }
+        .btn-delete { background: var(--danger); color: white; }
+
+        .action-btn:hover { transform: translateY(-1px); }
+
+        /* Form Section */
+        .form-section {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .form-section h3 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37,99,235,0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #64748b;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header h1 { font-size: 2rem; }
+            .header-info { flex-direction: column; gap: 0.5rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            table { font-size: 0.9rem; }
+            th, td { padding: 0.75rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-users"></i> Smart Event Attendee System</h1>
+            <div class="header-info">
+                <span>DSA Project - C++ Vectors</span>
+                <span>Shraddha Gupta | NIET | 2026</span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--primary);"><i class="fas fa-users"></i></div>
+                <div class="stat-number" id="totalAttendees">0</div>
+                <div>Total Attendees</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #10b981;"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-number" id="presentCount">0</div>
+                <div>Present</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #f59e0b;"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-number" id="duplicatesBlocked">0</div>
+                <div>Duplicates Blocked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #ef4444;"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-number" id="absentCount">0</div>
+                <div>Absent</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Table -->
+            <div class="table-section">
+                <h2><i class="fas fa-table"></i> Attendees Dashboard</h2>
+                <input type="text" class="search-bar" id="searchInput" 
+                       placeholder="🔍 Search by name or email...">
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Event</th>
+                                <th>Status</th>
+                                <th>Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendeesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="form-section">
+                <h3><i class="fas fa-plus-circle"></i> Add Attendee</h3>
+                <div id="message"></div>
+                <form id="form">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Full Name</label>
+                        <input type="text" class="form-input" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" class="form-input" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Event Type</label>
+                        <select class="form-select" id="eventType">
+                            <option value="Workshop">Workshop</option>
+                            <option value="Seminar">Seminar</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Webinar">Webinar</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-check-circle"></i> Status</label>
+                        <select class="form-select" id="status">
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span id="btnText">➕ Add Attendee</span>
+                        <span id="loadingSpinner" class="loading" style="display:none;"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Shraddha Gupta</strong> | Data Structures & Algorithms | GNIOT, Greater Noida | 2026</p>
+            <p>🛠️ Technologies: HTML5 • CSS3 • Vanilla JS • C++ Vectors (O(1) push_back, O(n) search)</p>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let attendees = JSON.parse(localStorage.getItem('attendees')) || [];
+        let duplicatesBlocked = parseInt(localStorage.getItem('duplicatesBlocked')) || 0;
+
+        // Core functions
+        const Backend = {
+            save() {
+                localStorage.setItem('attendees', JSON.stringify(attendees));
+                localStorage.setItem('duplicatesBlocked', duplicatesBlocked);
+            },
+            
+            isDuplicate(email) {
+                return attendees.some(a => a.email.toLowerCase() === email.toLowerCase());
+            },
+            
+            add(data) {
+                if (this.isDuplicate(data.email)) {
+                    duplicatesBlocked++;
+                    return { success: false, error: 'Duplicate email detected (O(n))!' };
+                }
+                data.id = 'ATT' + Date.now().toString(36).toUpperCase();
+                data.added = Date.now();
+                attendees.unshift(data);
+                this.save();
+                return { success: true, total: attendees.length };
+            },
+            
+            delete(id) {
+                attendees = attendees.filter(a => a.id !== id);
+                this.save();
+                return { success: true };
+            },
+            
+            getStats() {
+                const present = attendees.filter(a => a.status === 'present').length;
+                const absent = attendees.length - present;
+                return {
+                    total: attendees.length,
+                    present, absent,
+                    uniqueEmails: new Set(attendees.map(a => a.email)).size
+                };
+            }
+        };
+
+        // UI Updates
+        function updateStats() {
+            const stats = Backend.getStats();
+            document.getElementById('totalAttendees').textContent = stats.total;
+            document.getElementById('presentCount').textContent = stats.present;
+            document.getElementById('absentCount').textContent = stats.absent;
+            document.getElementById('duplicatesBlocked').textContent = duplicatesBlocked;
+        }
+
+        function renderTable(filtered = attendees) {
+            document.getElementById('attendeesTable').innerHTML = filtered.map(a => `
+                <tr>
+                    <td>${a.id.slice(-6)}</td>
+                    <td>${a.name}</td>
+                    <td>${a.email}</td>
+                    <td>${a.eventType}</td>
+                    <td><span class="status-badge status-${a.status}">${a.status.toUpperCase()}</span></td>
+                    <td>${new Date(a.added).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="edit('${a.id}')">✏️ Edit</button>
+                        <button class="action-btn btn-delete" onclick="remove('${a.id}')">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#94a3b8;">No attendees yet. Add one above!</td></tr>';
+        }
+
+        function showMessage(msg, type = 'success') {
+            const msgEl = document.getElementById('message');
+            msgEl.innerHTML = `<div class="alert alert-${type}"><i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${msg}</div>`;
+            setTimeout(() => msgEl.innerHTML = '', 4000);
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            const filtered = attendees.filter(a => 
+                a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q)
+            );
+            renderTable(filtered);
+        });
+
+        // Form submit
+        document.getElementById('form').addEventListener('submit', async e => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('loadingSpinner');
+            
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+
+            const data = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim().toLowerCase(),
+                eventType: document.getElementById('eventType').value,
+                status: document.getElementById('status').value
+            };
+
+            const result = Backend.add(data);
+            
+            btn.disabled = false;
+            btnText.style.display = 'inline-block';
+            spinner.style.display = 'none';
+
+            if (result.success) {
+                showMessage(`✅ Added! Total: ${result.total}`);
+                document.getElementById('form').reset();
+            } else {
+                showMessage(result.error, 'error');
+            }
+            
+            updateStats();
+            renderTable();
+        });
+
+        // Actions
+        function edit(id) {
+            const attendee = attendees.find(a => a.id === id);
+            if (!attendee) return;
+            
+            const newName = prompt('New name:', attendee.name);
+            const newEmail = prompt('New email:', attendee.email);
+            
+            if (newName?.trim() && newEmail?.trim()) {
+                if (newEmail.toLowerCase() !== attendee.email && Backend.isDuplicate(newEmail)) {
+                    showMessage('❌ Duplicate email!', 'error');
+                    return;
+                }
+                attendee.name = newName.trim();
+                attendee.email = newEmail.toLowerCase().trim();
+                Backend.save();
+                updateStats();
+                renderTable();
+                showMessage('✏️ Updated!');
+            }
+        }
+
+        function remove(id) {
+            if (confirm('Delete this attendee?')) {
+                Backend.delete(id);
+                updateStats();
+                renderTable();
+                showMessage('🗑️ Deleted!');
+            }
+        }
+
+        // Init
+        updateStats();
+        renderTable();
+    </script>
+</body>
+</html>
